@@ -2,10 +2,11 @@
 
 import React, { useEffect } from 'react'
 import { useStore } from '@/lib/store'
-import { Plus, Save, Share, Settings, User, Send } from 'lucide-react'
+import { Plus, Save, Share, Settings, User, Send, Play } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { LIMITS } from '@/lib/constants'
 
 export default function CreatePage() {
     const { story, addMessage, updateMessage, removeMessage } = useStore()
@@ -29,6 +30,10 @@ export default function CreatePage() {
 
     const handleSend = () => {
         if (!inputText.trim() || !activeCharId) return
+        if (story.messages.length >= LIMITS.MAX_MESSAGES) {
+            alert(`メッセージは最大${LIMITS.MAX_MESSAGES}件までです`)
+            return
+        }
         addMessage(activeCharId, inputText)
         setInputText('')
     }
@@ -83,18 +88,24 @@ export default function CreatePage() {
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-bold mb-1">タイトル</label>
+                            <label className="block text-sm font-bold mb-1">
+                                タイトル <span className="text-xs font-normal text-gray-400">({story.title.length}/{LIMITS.TITLE_MAX_LENGTH})</span>
+                            </label>
                             <input
                                 value={story.title}
                                 onChange={(e) => useStore.getState().setTitle(e.target.value)}
+                                maxLength={LIMITS.TITLE_MAX_LENGTH}
                                 className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold mb-1">作者名</label>
+                            <label className="block text-sm font-bold mb-1">
+                                作者名 <span className="text-xs font-normal text-gray-400">({story.author.length}/{LIMITS.AUTHOR_MAX_LENGTH})</span>
+                            </label>
                             <input
                                 value={story.author}
                                 onChange={(e) => useStore.getState().setAuthor(e.target.value)}
+                                maxLength={LIMITS.AUTHOR_MAX_LENGTH}
                                 className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5"
                             />
                         </div>
@@ -104,11 +115,18 @@ export default function CreatePage() {
                 <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-pop-pink-light flex-1">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold flex items-center gap-2 text-pop-pink">
-                            <User size={24} /> 登場人物
+                            <User size={24} /> 登場人物 <span className="text-sm">({story.characters.length}/{LIMITS.MAX_CHARACTERS})</span>
                         </h2>
                         <button
-                            onClick={() => useStore.getState().addCharacter('新キャラ', '#FFF9C4')}
-                            className="p-2 bg-pop-pink text-white rounded-full hover:scale-105 transition-transform"
+                            onClick={() => {
+                                if (story.characters.length >= LIMITS.MAX_CHARACTERS) {
+                                    alert(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`)
+                                    return
+                                }
+                                useStore.getState().addCharacter('新キャラ', '#FFF9C4')
+                            }}
+                            className="p-2 bg-pop-pink text-white rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={story.characters.length >= LIMITS.MAX_CHARACTERS}
                         >
                             <Plus size={20} />
                         </button>
@@ -124,6 +142,7 @@ export default function CreatePage() {
                                 <input
                                     value={char.name}
                                     onChange={(e) => useStore.getState().updateCharacter(char.id, { name: e.target.value })}
+                                    maxLength={LIMITS.CHARACTER_NAME_MAX_LENGTH}
                                     className="bg-transparent font-bold text-gray-700 focus:outline-none w-full min-w-0"
                                 />
                                 <button
@@ -144,18 +163,31 @@ export default function CreatePage() {
                 <div className="w-full h-[100dvh] md:h-[800px] md:max-w-[400px] bg-white md:rounded-[40px] md:border-8 md:border-gray-100 shadow-xl overflow-hidden flex flex-col relative">
 
                     {/* Header */}
-                    <div className="h-14 bg-white/90 flex items-center justify-between px-4 border-b border-pop-cyan/20 shrink-0 backdrop-blur-md relative z-10">
+                    <div className="h-14 bg-white/90 flex items-center justify-between px-3 border-b border-pop-cyan/20 shrink-0 backdrop-blur-md relative z-10 gap-2">
                         {/* Mobile Settings Toggle */}
                         <button
                             onClick={() => setShowMobileSettings(true)}
-                            className="md:hidden p-2 text-gray-400 hover:text-pop-pink hover:bg-pop-pink/10 rounded-full transition-colors"
+                            className="md:hidden p-2 text-gray-400 hover:text-pop-pink hover:bg-pop-pink/10 rounded-full transition-colors shrink-0"
                         >
                             <Settings size={20} />
                         </button>
 
-                        <h3 className="font-bold text-cyan-900 truncate flex-1 text-center">{story.title}</h3>
+                        <h3 className="font-bold text-cyan-900 truncate flex-1 text-center text-sm md:text-base">
+                            {story.title || '（タイトル未設定）'}
+                        </h3>
 
-                        <div className="w-9 md:hidden" /> {/* Spacer for center alignment */}
+                        {/* Mobile Action Buttons */}
+                        <div className="flex items-center gap-1 md:hidden shrink-0">
+                            <button
+                                onClick={() => handleSave(true)}
+                                disabled={isSaving}
+                                className="px-3 py-1.5 bg-pop-pink text-white rounded-full font-bold shadow-sm hover:bg-pop-pink-light transition-colors disabled:opacity-50 text-xs flex items-center gap-1"
+                            >
+                                <Play size={14} fill="currentColor" /> プレビュー
+                            </button>
+                        </div>
+
+                        <div className="w-9 hidden md:block" />
                     </div>
 
                     {/* Chat Area */}
@@ -185,6 +217,7 @@ export default function CreatePage() {
                                                 e.target.style.height = 'auto'
                                                 e.target.style.height = e.target.scrollHeight + 'px'
                                             }}
+                                            maxLength={LIMITS.MESSAGE_MAX_LENGTH}
                                             ref={(el) => {
                                                 if (el) {
                                                     el.style.height = 'auto'
@@ -232,7 +265,8 @@ export default function CreatePage() {
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="メッセージ..."
+                                maxLength={LIMITS.MESSAGE_MAX_LENGTH}
+                                placeholder={`メッセージ (${LIMITS.MESSAGE_MAX_LENGTH}文字以内)...`}
                                 rows={1}
                                 className="flex-1 bg-transparent border-none outline-none text-sm px-2 py-2 resize-none max-h-24"
                                 style={{ minHeight: '24px' }}
@@ -248,21 +282,14 @@ export default function CreatePage() {
                     </div>
                 </div>
 
-                {/* Global Action Bar (Desktop only, Mobile puts in Settings) */}
-                <div className="hidden md:flex mt-6 gap-4">
-                    <button
-                        onClick={() => handleSave(false)}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-pop-pink text-pop-pink font-bold rounded-full hover:bg-pop-pink hover:text-white transition-colors disabled:opacity-50"
-                    >
-                        <Save size={20} /> {isSaving ? '保存中...' : '保存する'}
-                    </button>
+                {/* Global Action Bar */}
+                <div className="hidden md:flex mt-6">
                     <button
                         onClick={() => handleSave(true)}
                         disabled={isSaving}
-                        className="flex items-center gap-2 px-6 py-3 bg-pop-cyan text-cyan-900 font-bold rounded-full shadow-md hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-8 py-4 bg-pop-pink text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 text-lg animate-wiggle"
                     >
-                        <Share size={20} /> 公開する
+                        <Play size={24} fill="currentColor" /> プレビューして共有
                     </button>
                 </div>
             </div>
@@ -288,18 +315,24 @@ export default function CreatePage() {
                             <div className="space-y-4">
                                 <h3 className="font-bold text-gray-700">基本情報</h3>
                                 <div>
-                                    <label className="block text-sm font-bold mb-1 text-gray-500">タイトル</label>
+                                    <label className="block text-sm font-bold mb-1 text-gray-500">
+                                        タイトル <span className="text-xs font-normal">({story.title.length}/{LIMITS.TITLE_MAX_LENGTH})</span>
+                                    </label>
                                     <input
                                         value={story.title}
                                         onChange={(e) => useStore.getState().setTitle(e.target.value)}
+                                        maxLength={LIMITS.TITLE_MAX_LENGTH}
                                         className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-1 text-gray-500">作者名</label>
+                                    <label className="block text-sm font-bold mb-1 text-gray-500">
+                                        作者名 <span className="text-xs font-normal">({story.author.length}/{LIMITS.AUTHOR_MAX_LENGTH})</span>
+                                    </label>
                                     <input
                                         value={story.author}
                                         onChange={(e) => useStore.getState().setAuthor(e.target.value)}
+                                        maxLength={LIMITS.AUTHOR_MAX_LENGTH}
                                         className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
                                     />
                                 </div>
@@ -307,10 +340,17 @@ export default function CreatePage() {
 
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="font-bold text-gray-700">登場人物</h3>
+                                    <h3 className="font-bold text-gray-700">登場人物 ({story.characters.length}/{LIMITS.MAX_CHARACTERS})</h3>
                                     <button
-                                        onClick={() => useStore.getState().addCharacter('新キャラ', '#FFF9C4')}
-                                        className="p-2 bg-pop-pink text-white rounded-full scale-90"
+                                        onClick={() => {
+                                            if (story.characters.length >= LIMITS.MAX_CHARACTERS) {
+                                                alert(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`)
+                                                return
+                                            }
+                                            useStore.getState().addCharacter('新キャラ', '#FFF9C4')
+                                        }}
+                                        disabled={story.characters.length >= LIMITS.MAX_CHARACTERS}
+                                        className="p-2 bg-pop-pink text-white rounded-full scale-90 disabled:opacity-50"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -325,6 +365,7 @@ export default function CreatePage() {
                                             <input
                                                 value={char.name}
                                                 onChange={(e) => useStore.getState().updateCharacter(char.id, { name: e.target.value })}
+                                                maxLength={LIMITS.CHARACTER_NAME_MAX_LENGTH}
                                                 className="bg-transparent font-bold text-gray-700 w-full"
                                             />
                                             <button
@@ -338,18 +379,12 @@ export default function CreatePage() {
                                 </div>
                             </div>
 
-                            <div className="pt-6 grid grid-cols-2 gap-4">
-                                <button
-                                    onClick={() => { setShowMobileSettings(false); handleSave(false); }}
-                                    className="p-4 border-2 border-pop-pink text-pop-pink font-bold rounded-2xl flex items-center justify-center gap-2"
-                                >
-                                    <Save size={20} /> 保存
-                                </button>
+                            <div className="pt-6">
                                 <button
                                     onClick={() => { setShowMobileSettings(false); handleSave(true); }}
-                                    className="p-4 bg-pop-cyan text-cyan-900 font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md"
+                                    className="w-full p-4 bg-pop-pink text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-opacity"
                                 >
-                                    <Share size={20} /> 公開
+                                    <Play size={20} fill="currentColor" /> プレビューして共有
                                 </button>
                             </div>
                         </div>
