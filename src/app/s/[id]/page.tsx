@@ -1,41 +1,71 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Message, Character } from '@/lib/types'
+import { Message, Character, Story } from '@/lib/types'
 import { useParams } from 'next/navigation'
-
-// Mock Data for Demo
-const DEMO_CHARS: Character[] = [
-    { id: '1', name: '先輩', color: '#ffecf1' },
-    { id: '2', name: '私', color: '#e0f7fa' }
-]
-const DEMO_MESSAGES: Message[] = [
-    { id: 'm1', characterId: '2', text: '先輩！', type: 'text' },
-    { id: 'm2', characterId: '1', text: 'ん？どうしたの？', type: 'text' },
-    { id: 'm3', characterId: '2', text: '実は伝えたいことがあって...', type: 'text' },
-    { id: 'm4', characterId: '1', text: 'え、何？もしかして...', type: 'text' },
-    { id: 'm5', characterId: '2', text: '購買のパン、買ってきてください！', type: 'text' },
-    { id: 'm6', characterId: '1', text: 'パシリかよ！！！', type: 'text' },
-]
+import { supabase } from '@/lib/supabase'
 
 export default function ViewerPage() {
     const params = useParams()
-    // In real app, fetch story by params.id
-    console.log('Loading story:', params.id)
+    const [story, setStory] = useState<Story | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
 
+    // Playback state
     const [index, setIndex] = useState(0)
 
-    const currentMessages = DEMO_MESSAGES.slice(0, index + 1)
-    const isFinished = index >= DEMO_MESSAGES.length - 1
+    useEffect(() => {
+        const fetchStory = async () => {
+            if (!params.id) return
+            try {
+                const { data, error } = await supabase
+                    .from('stories')
+                    .select('*')
+                    .eq('id', params.id)
+                    .single()
+
+                if (error) throw error
+
+                // Parse JSONB content
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const content = data.content as any
+                setStory({
+                    ...data,
+                    characters: content.characters,
+                    messages: content.messages,
+                    theme: content.theme
+                })
+            } catch (err) {
+                console.error(err)
+                setError('ストーリーが見つかりません')
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchStory()
+    }, [params.id])
+
+    // Derive current visible messages
+    const currentMessages = story ? story.messages.slice(0, index + 1) : []
+    const isFinished = story ? index >= story.messages.length - 1 : false
 
     const handleTap = () => {
-        if (!isFinished) {
+        if (story && !isFinished) {
             setIndex(prev => prev + 1)
-            // Auto scroll logic would go here
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
         }
     }
+
+    // Auto scroll when message added
+    const messagesEndRef = React.useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+    }, [index, story])
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center text-pop-pink font-bold">読み込み中...</div>
+    if (error || !story) return <div className="min-h-screen flex items-center justify-center text-gray-500">{error || 'エラーが発生しました'}</div>
 
     return (
         <div
@@ -44,16 +74,15 @@ export default function ViewerPage() {
         >
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pop-pink/20 p-4 text-center shadow-sm">
-                <h1 className="font-bold text-gray-700">放課後の二人</h1>
-                <div className="text-xs text-gray-400">Tap to Next</div>
+                <h1 className="font-bold text-gray-700">{story.title}</h1>
             </div>
 
             <div className="max-w-[480px] mx-auto p-4 space-y-6">
                 <AnimatePresence>
                     {currentMessages.map((msg) => {
-                        const char = DEMO_CHARS.find(c => c.id === msg.characterId)
-                        // Let's say '2' is Me (Right)
-                        const isMe = msg.characterId === '2'
+                        const char = story.characters.find(c => c.id === msg.characterId)
+                        // Assume first character is "Me" (right side)
+                        const isMe = msg.characterId === story.characters[0]?.id
 
                         return (
                             <motion.div
@@ -75,7 +104,7 @@ export default function ViewerPage() {
 
                                     <div className={`p-4 rounded-2xl text-base leading-relaxed whitespace-pre-wrap shadow-sm
                      ${isMe
-                                            ? 'bg-pop-pink text-white rounded-tr-xs'
+                                            ? 'bg-pop-green text-white rounded-tr-xs'
                                             : 'bg-white text-gray-800 rounded-tl-xs border border-gray-100'
                                         }`}>
                                         {msg.text}
@@ -85,6 +114,7 @@ export default function ViewerPage() {
                         )
                     })}
                 </AnimatePresence>
+                <div ref={messagesEndRef} className="h-4" />
 
                 {isFinished && (
                     <motion.div

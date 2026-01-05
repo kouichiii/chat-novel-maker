@@ -4,14 +4,19 @@ import React, { useEffect } from 'react'
 import { useStore } from '@/lib/store'
 import { Plus, Save, Share, Settings, User, Send } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function CreatePage() {
     const { story, addMessage, updateMessage, removeMessage } = useStore()
+    const router = useRouter()
 
     // Hydration fix for zustand persist (if we used it, but here just safe render)
     const [inputText, setInputText] = React.useState('')
     const [activeCharId, setActiveCharId] = React.useState(story.characters[0]?.id || '')
     const [mounted, setMounted] = React.useState(false) // Fix missing mounted state
+    const [isSaving, setIsSaving] = React.useState(false)
+
     useEffect(() => setMounted(true), []) // Re-add effect
 
     // Update activeCharId if characters change and current selection is invalid
@@ -32,6 +37,35 @@ export default function CreatePage() {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             handleSend()
+        }
+    }
+
+    const handleSave = async (redirect = false) => {
+        setIsSaving(true)
+        try {
+            const { error } = await supabase.from('stories').upsert({
+                id: story.id,
+                title: story.title,
+                author: story.author,
+                content: {
+                    characters: story.characters,
+                    messages: story.messages,
+                    theme: story.theme
+                }
+            })
+
+            if (error) throw error
+
+            if (redirect) {
+                router.push(`/s/${story.id}`)
+            } else {
+                alert('保存しました！')
+            }
+        } catch (e) {
+            console.error(e)
+            alert('保存に失敗しました')
+        } finally {
+            setIsSaving(false)
         }
     }
 
@@ -212,10 +246,18 @@ export default function CreatePage() {
 
                 {/* Global Action Bar */}
                 <div className="mt-6 flex gap-4">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-pop-pink text-pop-pink font-bold rounded-full hover:bg-pop-pink hover:text-white transition-colors">
-                        <Save size={20} /> 保存する
+                    <button
+                        onClick={() => handleSave(false)}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-pop-pink text-pop-pink font-bold rounded-full hover:bg-pop-pink hover:text-white transition-colors disabled:opacity-50"
+                    >
+                        <Save size={20} /> {isSaving ? '保存中...' : '保存する'}
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-3 bg-pop-cyan text-cyan-900 font-bold rounded-full shadow-md hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <button
+                        onClick={() => handleSave(true)}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-3 bg-pop-cyan text-cyan-900 font-bold rounded-full shadow-md hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-50"
+                    >
                         <Share size={20} /> 公開する
                     </button>
                 </div>
