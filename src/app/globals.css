@@ -32,3 +32,35 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+@keyframes wiggle-interval {
+
+  0%,
+  85% {
+    transform: rotate(0deg);
+  }
+
+  87% {
+    transform: rotate(-1.5deg);
+  }
+
+  89% {
+    transform: rotate(1.5deg);
+  }
+
+  91% {
+    transform: rotate(-1.5deg);
+  }
+
+  93% {
+    transform: rotate(1.5deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle-interval 4s infinite ease-in-out;
+}

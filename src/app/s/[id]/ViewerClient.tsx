@@ -48,10 +48,11 @@ export default function ViewerClient({ id }: { id: string }) {
 
     // Derive current visible messages
     const currentMessages = story ? story.messages.slice(0, index + 1) : []
-    const isFinished = story ? index >= story.messages.length - 1 : false
+    // Show end screen only after tapping once more after the last message
+    const showEnd = story ? index >= story.messages.length : false
 
     const handleTap = () => {
-        if (story && !isFinished) {
+        if (story && !showEnd) {
             setIndex(prev => prev + 1)
         }
     }
@@ -89,14 +90,14 @@ export default function ViewerClient({ id }: { id: string }) {
     return (
         <div
             onClick={handleTap}
-            className="min-h-screen bg-pop-cyan/20 cursor-pointer pb-20"
+            className="min-h-screen bg-pop-cyan/20 cursor-pointer pb-20 flex flex-col"
         >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pop-pink/20 p-4 text-center shadow-sm">
+            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pop-pink/20 p-4 text-center shadow-sm shrink-0">
                 <h1 className="font-bold text-gray-700">{story.title}</h1>
             </div>
 
-            <div className="max-w-[480px] mx-auto p-4 space-y-6">
+            <div className="max-w-[480px] mx-auto p-4 space-y-6 flex-1 flex flex-col justify-end w-full">
                 <AnimatePresence>
                     {currentMessages.map((msg) => {
                         const char = story.characters.find(c => c.id === msg.characterId)
@@ -135,7 +136,7 @@ export default function ViewerClient({ id }: { id: string }) {
                 </AnimatePresence>
                 <div ref={messagesEndRef} className="h-4" />
 
-                {isFinished && (
+                {showEnd && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
