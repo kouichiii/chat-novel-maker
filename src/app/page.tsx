@@ -29,7 +29,7 @@ export default function Home() {
 
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
         {[
-          { icon: PenTool, title: '簡単作成', desc: 'LINE風の画面でサクサク書ける' },
+          { icon: PenTool, title: '簡単作成', desc: 'チャット画面でサクサク書ける' },
           { icon: MessageCircle, title: 'タップ読み', desc: '読者はタップして会話を進める' },
           { icon: Share2, title: 'すぐシェア', desc: 'URLを送るだけで誰でも読める' },
         ].map((feature, i) => (
