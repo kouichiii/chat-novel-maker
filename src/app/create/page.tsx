@@ -7,10 +7,12 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { LIMITS } from '@/lib/constants'
+import { useToast } from '@/lib/useToast'
 
 export default function CreatePage() {
     const { story, addMessage, updateMessage, removeMessage } = useStore()
     const router = useRouter()
+    const { addToast } = useToast()
 
     // Hydration fix for zustand persist (if we used it, but here just safe render)
     const [inputText, setInputText] = React.useState('')
@@ -31,7 +33,7 @@ export default function CreatePage() {
     const handleSend = () => {
         if (!inputText.trim() || !activeCharId) return
         if (story.messages.length >= LIMITS.MAX_MESSAGES) {
-            alert(`メッセージは最大${LIMITS.MAX_MESSAGES}件までです`)
+            addToast(`メッセージは最大${LIMITS.MAX_MESSAGES}件までです`, 'error')
             return
         }
         addMessage(activeCharId, inputText)
@@ -46,6 +48,10 @@ export default function CreatePage() {
     }
 
     const handleSave = async (redirect = false) => {
+        if (story.messages.length === 0) {
+            addToast('メッセージが1つもありません。\nプレビューするには、まずは会話を入力してください！', 'error')
+            return
+        }
         setIsSaving(true)
         try {
             const { error } = await supabase.from('stories').upsert({
@@ -64,11 +70,11 @@ export default function CreatePage() {
             if (redirect) {
                 router.push(`/s/${story.id}`)
             } else {
-                alert('保存しました！')
+                addToast('保存しました！', 'success')
             }
         } catch (e) {
             console.error(e)
-            alert('保存に失敗しました')
+            addToast('保存に失敗しました', 'error')
         } finally {
             setIsSaving(false)
         }
@@ -120,7 +126,7 @@ export default function CreatePage() {
                         <button
                             onClick={() => {
                                 if (story.characters.length >= LIMITS.MAX_CHARACTERS) {
-                                    alert(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`)
+                                    addToast(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`, 'error')
                                     return
                                 }
                                 useStore.getState().addCharacter('新キャラ', '#FFF9C4')
@@ -172,12 +178,12 @@ export default function CreatePage() {
                             <Settings size={20} />
                         </button>
 
-                        <h3 className="font-bold text-cyan-900 truncate flex-1 text-center text-sm md:text-base">
+                        <h3 className="font-bold text-cyan-900 truncate text-center text-sm md:text-base absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[calc(100%-210px)] md:max-w-xs pointer-events-none">
                             {story.title || '（タイトル未設定）'}
                         </h3>
 
                         {/* Mobile Action Buttons */}
-                        <div className="flex items-center gap-1 md:hidden shrink-0">
+                        <div className="flex items-center gap-1 md:hidden shrink-0 ml-auto">
                             <button
                                 onClick={() => handleSave(true)}
                                 disabled={isSaving}
