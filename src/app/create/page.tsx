@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { useStore } from '@/lib/store'
 import { Plus, Save, Share, Settings, User, Send, Play } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { LIMITS } from '@/lib/constants'
@@ -321,113 +321,122 @@ export default function CreatePage() {
             </div>
 
             {/* Mobile Settings Modal */}
-            {showMobileSettings && (
-                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden flex items-end sm:items-center justify-center">
+            <AnimatePresence>
+                {showMobileSettings && (
                     <motion.div
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
-                        className="bg-white w-full h-[85vh] rounded-t-[32px] p-6 flex flex-col gap-6 shadow-2xl"
+                        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden flex items-end sm:items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                     >
-                        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto shrink-0" />
+                        <motion.div
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'tween', duration: 0.18, ease: 'easeOut' }}
+                            className="bg-white w-full h-[85vh] rounded-t-[32px] p-6 flex flex-col gap-6 shadow-2xl"
+                        >
+                            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto shrink-0" />
 
-                        <div className="flex justify-between items-center border-b pb-4">
-                            <h2 className="text-xl font-bold text-pop-pink flex items-center gap-2"><Settings /> 設定</h2>
-                            <button onClick={() => setShowMobileSettings(false)} className="text-gray-500 font-bold">閉じる</button>
-                        </div>
-
-                        <div className="overflow-y-auto space-y-8 flex-1 pb-10">
-                            {/* Settings Content (Duplicated for simplicity or extract component) */}
-                            <div className="space-y-4">
-                                <h3 className="font-bold text-gray-700">基本情報</h3>
-                                <div>
-                                    <label className="block text-sm font-bold mb-1 text-gray-500">
-                                        タイトル <span className="text-xs font-normal">({story.title.length}/{LIMITS.TITLE_MAX_LENGTH})</span>
-                                    </label>
-                                    <input
-                                        value={story.title}
-                                        onChange={(e) => useStore.getState().setTitle(e.target.value)}
-                                        maxLength={LIMITS.TITLE_MAX_LENGTH}
-                                        className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold mb-1 text-gray-500">
-                                        作者名 <span className="text-xs font-normal">({story.author.length}/{LIMITS.AUTHOR_MAX_LENGTH})</span>
-                                    </label>
-                                    <input
-                                        value={story.author}
-                                        onChange={(e) => useStore.getState().setAuthor(e.target.value)}
-                                        maxLength={LIMITS.AUTHOR_MAX_LENGTH}
-                                        className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold mb-1 text-gray-500">
-                                        タグ <span className="text-xs font-normal">例: #職場, #彼女, #学校</span>
-                                    </label>
-                                    <input
-                                        value={tagsInput}
-                                        onChange={(e) => setTagsInput(e.target.value)}
-                                        placeholder="#職場 #彼女 #学校 など（スペース・カンマ区切り）"
-                                        className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5 text-sm"
-                                    />
-                                </div>
+                            <div className="flex justify-between items-center border-b pb-4">
+                                <h2 className="text-xl font-bold text-pop-pink flex items-center gap-2"><Settings /> 設定</h2>
+                                <button onClick={() => setShowMobileSettings(false)} className="text-gray-500 font-bold">閉じる</button>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <h3 className="font-bold text-gray-700">登場人物 ({story.characters.length}/{LIMITS.MAX_CHARACTERS})</h3>
+                            <div className="overflow-y-auto space-y-8 flex-1 pb-10">
+                                {/* Settings Content (Duplicated for simplicity or extract component) */}
+                                <div className="space-y-4">
+                                    <h3 className="font-bold text-gray-700">基本情報</h3>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1 text-gray-500">
+                                            タイトル <span className="text-xs font-normal">({story.title.length}/{LIMITS.TITLE_MAX_LENGTH})</span>
+                                        </label>
+                                        <input
+                                            value={story.title}
+                                            onChange={(e) => useStore.getState().setTitle(e.target.value)}
+                                            maxLength={LIMITS.TITLE_MAX_LENGTH}
+                                            className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1 text-gray-500">
+                                            作者名 <span className="text-xs font-normal">({story.author.length}/{LIMITS.AUTHOR_MAX_LENGTH})</span>
+                                        </label>
+                                        <input
+                                            value={story.author}
+                                            onChange={(e) => useStore.getState().setAuthor(e.target.value)}
+                                            maxLength={LIMITS.AUTHOR_MAX_LENGTH}
+                                            className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1 text-gray-500">
+                                            タグ <span className="text-xs font-normal">例: #職場, #彼女, #学校</span>
+                                        </label>
+                                        <input
+                                            value={tagsInput}
+                                            onChange={(e) => setTagsInput(e.target.value)}
+                                            placeholder="#職場 #彼女 #学校 など（スペース・カンマ区切り）"
+                                            className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="font-bold text-gray-700">登場人物 ({story.characters.length}/{LIMITS.MAX_CHARACTERS})</h3>
+                                        <button
+                                            onClick={() => {
+                                                if (story.characters.length >= LIMITS.MAX_CHARACTERS) {
+                                                    alert(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`)
+                                                    return
+                                                }
+                                                useStore.getState().addCharacter('新キャラ', '#FFF9C4')
+                                            }}
+                                            disabled={story.characters.length >= LIMITS.MAX_CHARACTERS}
+                                            className="p-2 bg-pop-pink text-white rounded-full scale-90 disabled:opacity-50"
+                                        >
+                                            <Plus size={20} />
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {story.characters.map((char) => (
+                                            <div key={char.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                                <div
+                                                    className="w-10 h-10 rounded-full border-2 border-white shadow-sm shrink-0"
+                                                    style={{ backgroundColor: char.color }}
+                                                />
+                                                <input
+                                                    value={char.name}
+                                                    onChange={(e) => useStore.getState().updateCharacter(char.id, { name: e.target.value })}
+                                                    maxLength={LIMITS.CHARACTER_NAME_MAX_LENGTH}
+                                                    className="bg-transparent font-bold text-gray-700 w-full"
+                                                />
+                                                <button
+                                                    onClick={() => useStore.getState().removeCharacter(char.id)}
+                                                    className="text-red-400 text-xs font-bold shrink-0"
+                                                >
+                                                    削除
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-6">
                                     <button
-                                        onClick={() => {
-                                            if (story.characters.length >= LIMITS.MAX_CHARACTERS) {
-                                                alert(`登場人物は最大${LIMITS.MAX_CHARACTERS}人までです`)
-                                                return
-                                            }
-                                            useStore.getState().addCharacter('新キャラ', '#FFF9C4')
-                                        }}
-                                        disabled={story.characters.length >= LIMITS.MAX_CHARACTERS}
-                                        className="p-2 bg-pop-pink text-white rounded-full scale-90 disabled:opacity-50"
+                                        onClick={() => { setShowMobileSettings(false); handleSave(true); }}
+                                        className="w-full p-4 bg-pop-pink text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-opacity"
                                     >
-                                        <Plus size={20} />
+                                        <Play size={20} fill="currentColor" /> プレビューして共有
                                     </button>
                                 </div>
-                                <div className="space-y-3">
-                                    {story.characters.map((char) => (
-                                        <div key={char.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                                            <div
-                                                className="w-10 h-10 rounded-full border-2 border-white shadow-sm shrink-0"
-                                                style={{ backgroundColor: char.color }}
-                                            />
-                                            <input
-                                                value={char.name}
-                                                onChange={(e) => useStore.getState().updateCharacter(char.id, { name: e.target.value })}
-                                                maxLength={LIMITS.CHARACTER_NAME_MAX_LENGTH}
-                                                className="bg-transparent font-bold text-gray-700 w-full"
-                                            />
-                                            <button
-                                                onClick={() => useStore.getState().removeCharacter(char.id)}
-                                                className="text-red-400 text-xs font-bold shrink-0"
-                                            >
-                                                削除
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
-
-                            <div className="pt-6">
-                                <button
-                                    onClick={() => { setShowMobileSettings(false); handleSave(true); }}
-                                    className="w-full p-4 bg-pop-pink text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-opacity"
-                                >
-                                    <Play size={20} fill="currentColor" /> プレビューして共有
-                                </button>
-                            </div>
-                        </div>
+                        </motion.div>
                     </motion.div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     )
 }
