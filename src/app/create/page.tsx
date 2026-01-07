@@ -19,6 +19,7 @@ export default function CreatePage() {
     const [activeCharId, setActiveCharId] = React.useState(story.characters[0]?.id || '')
     const [mounted, setMounted] = React.useState(false) // Fix missing mounted state
     const [isSaving, setIsSaving] = React.useState(false)
+    const [tagsInput, setTagsInput] = React.useState('')
 
     useEffect(() => setMounted(true), []) // Re-add effect
 
@@ -54,14 +55,22 @@ export default function CreatePage() {
         }
         setIsSaving(true)
         try {
+            const tags = tagsInput
+                .split(/[#,、，\s]+/)
+                .map(t => t.trim())
+                .filter(Boolean)
+                .slice(0, 10)
+
             const { error } = await supabase.from('stories').upsert({
                 id: story.id,
                 title: story.title,
                 author: story.author,
+                 tags,
                 content: {
                     characters: story.characters,
                     messages: story.messages,
-                    theme: story.theme
+                    theme: story.theme,
+                    tags
                 }
             })
 
@@ -84,8 +93,8 @@ export default function CreatePage() {
 
     if (!mounted) return null
 
-    return (
-        <div className="min-h-screen md:p-8 flex gap-6 max-w-6xl mx-auto items-start justify-center">
+        return (
+		<div className="min-h-dvh md:p-8 flex gap-6 max-w-6xl mx-auto items-start justify-center">
             {/* LEFT PANEL: Settings & Characters (Desktop) */}
             <div className="hidden md:flex flex-col w-1/3 gap-6 sticky top-8">
                 <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-pop-pink-light">
@@ -101,7 +110,7 @@ export default function CreatePage() {
                                 value={story.title}
                                 onChange={(e) => useStore.getState().setTitle(e.target.value)}
                                 maxLength={LIMITS.TITLE_MAX_LENGTH}
-                                className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5"
+                                className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5 text-base"
                             />
                         </div>
                         <div>
@@ -112,7 +121,18 @@ export default function CreatePage() {
                                 value={story.author}
                                 onChange={(e) => useStore.getState().setAuthor(e.target.value)}
                                 maxLength={LIMITS.AUTHOR_MAX_LENGTH}
-                                className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5"
+                                className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5 text-base"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold mb-1">
+                                タグ <span className="text-xs font-normal text-gray-400">例: #職場, #彼女, #学校</span>
+                            </label>
+                            <input
+                                value={tagsInput}
+                                onChange={(e) => setTagsInput(e.target.value)}
+                                placeholder="#職場 #彼女 #学校 など（スペース・カンマ区切り）"
+                                className="w-full p-3 rounded-xl border-2 border-pop-pink-light focus:outline-none focus:border-pop-pink transition-colors bg-pop-pink/5 text-base"
                             />
                         </div>
                     </div>
@@ -274,7 +294,7 @@ export default function CreatePage() {
                                 maxLength={LIMITS.MESSAGE_MAX_LENGTH}
                                 placeholder={`メッセージ (${LIMITS.MESSAGE_MAX_LENGTH}文字以内)...`}
                                 rows={1}
-                                className="flex-1 bg-transparent border-none outline-none text-sm px-2 py-2 resize-none max-h-24"
+                                className="flex-1 bg-transparent border-none outline-none text-base px-2 py-2 resize-none max-h-24"
                                 style={{ minHeight: '24px' }}
                             />
                             <button
@@ -340,6 +360,17 @@ export default function CreatePage() {
                                         onChange={(e) => useStore.getState().setAuthor(e.target.value)}
                                         maxLength={LIMITS.AUTHOR_MAX_LENGTH}
                                         className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 text-gray-500">
+                                        タグ <span className="text-xs font-normal">例: #職場, #彼女, #学校</span>
+                                    </label>
+                                    <input
+                                        value={tagsInput}
+                                        onChange={(e) => setTagsInput(e.target.value)}
+                                        placeholder="#職場 #彼女 #学校 など（スペース・カンマ区切り）"
+                                        className="w-full p-3 rounded-xl border-2 border-pop-pink-light bg-pop-pink/5 text-sm"
                                     />
                                 </div>
                             </div>

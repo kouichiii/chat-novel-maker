@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MessageCircle, PenTool, Share2 } from 'lucide-react'
+import { MessageCircle, PenTool, Share2, Crown } from 'lucide-react'
 
 export default function Home() {
   return (
@@ -61,6 +61,15 @@ export default function Home() {
             <p className="text-sm text-gray-500">{feature.desc}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8 md:mt-10">
+        <Link
+          href="/ranking"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-pop-pink/40 text-pop-pink text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+        >
+          <Crown size={16} /> みんなのネタランキングを見る
+        </Link>
       </div>
 
       <div className="mt-12 text-gray-400 text-xs text-center md:hidden">

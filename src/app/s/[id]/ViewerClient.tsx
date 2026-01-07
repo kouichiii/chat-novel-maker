@@ -36,6 +36,17 @@ export default function ViewerClient({ id }: { id: string }) {
                     messages: content.messages,
                     theme: content.theme
                 })
+
+                // Increment view count (best-effort). Ignore errors but log them for debugging.
+                void supabase
+                    .from('stories')
+                    .update({ views: (data.views ?? 0) + 1 })
+                    .eq('id', id)
+                    .then(({ error }) => {
+                        if (error) {
+                            console.error('Failed to increment views', error)
+                        }
+                    })
             } catch (err) {
                 console.error(err)
                 setError('ストーリーが見つかりません')
