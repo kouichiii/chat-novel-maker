@@ -66,11 +66,11 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
             type="text"
             name="q"
             placeholder="タイトルで検索する..."
-            className="flex-1 px-3 py-2 rounded-xl border border-pop-pink/40 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-pop-pink/60"
+            className="flex-1 px-3 py-2 rounded-xl border border-pop-pink/40 bg-white text-base focus:outline-none focus:ring-2 focus:ring-pop-pink/60"
           />
           <button
             type="submit"
-            className="px-4 py-2 rounded-xl bg-pop-pink text-white text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-1"
+            className="px-4 py-2 rounded-xl bg-pop-pink text-white text-base font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-1"
           >
             <Search size={16} /> 検索
           </button>
