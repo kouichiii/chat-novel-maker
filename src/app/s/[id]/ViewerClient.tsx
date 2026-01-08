@@ -6,11 +6,13 @@ import { Story } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { Share, RotateCcw, PenTool } from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/lib/useToast'
 
 export default function ViewerClient({ id }: { id: string }) {
     const [story, setStory] = useState<Story | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const { addToast } = useToast()
 
     // Playback state
     const [index, setIndex] = useState(0)
@@ -72,18 +74,28 @@ export default function ViewerClient({ id }: { id: string }) {
         e.stopPropagation()
         if (!story) return
         const url = window.location.href
-        const title = story.title
-        const text = `${story.author}さんが作ったチャット小説「${title}」を読んでみて！\n#ChatNovelMaker`
+        const title = story.title || 'チャット小説'
+        const author = story.author || 'Anonymous'
+        const text = `📱「${title}」\nby ${author}\n#ChatNovelMaker`
 
         if (navigator.share) {
             try {
                 await navigator.share({ title, text, url })
-            } catch (_e) {
-                console.log('Share canceled')
+            } catch (err) {
+                // ユーザーキャンセルは無視、それ以外は軽く通知
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const anyErr = err as any
+                if (anyErr?.name !== 'AbortError') {
+                    addToast('共有に失敗しました', 'error')
+                }
             }
         } else {
-            await navigator.clipboard.writeText(`${text}\n${url}`)
-            alert('URLをコピーしました！')
+            try {
+                await navigator.clipboard.writeText(`${text}\n${url}`)
+                addToast('リンクをコピーしました！XやLINEに貼り付けてシェアできます', 'success')
+            } catch {
+                addToast('コピーに失敗しました。ブラウザのアドレスバーからURLをコピーしてください', 'error')
+            }
         }
     }
 
