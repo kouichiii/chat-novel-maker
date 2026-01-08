@@ -1,12 +1,48 @@
 import { ImageResponse } from 'next/og'
+import { supabase } from '@/lib/supabase'
 
 export const runtime = 'edge'
+
+type OgMessage = { text: string; isMe: boolean }
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
-        const title = searchParams.get('title') || 'Chat Novel Maker'
-        const author = searchParams.get('author') || 'Anonymous'
+        const id = searchParams.get('id')
+        let title = searchParams.get('title') || 'Chat Novel Maker'
+        let author = searchParams.get('author') || 'Anonymous'
+
+        let messages: OgMessage[] = []
+
+        if (id) {
+            try {
+                const { data, error } = await supabase
+                    .from('stories')
+                    .select('title, author, content')
+                    .eq('id', id)
+                    .single()
+
+                if (!error && data && data.content) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const content = data.content as any
+                    const characters = content.characters || []
+                    const msgs = content.messages || []
+                    const meId = characters[0]?.id
+
+                    title = data.title || title
+                    author = data.author || author
+
+                    messages = (msgs as { id: string; text: string; characterId: string }[]) 
+                        .slice(0, 3)
+                        .map((m) => ({
+                            text: m.text,
+                            isMe: m.characterId === meId,
+                        }))
+                }
+            } catch (e) {
+                console.log('Failed to fetch story for OG image', e)
+            }
+        }
 
         return new ImageResponse(
             (
@@ -38,26 +74,87 @@ export async function GET(request: Request) {
                     >
                         <div
                             style={{
-                                fontSize: 60,
+                                fontSize: 54,
                                 fontWeight: 'bold',
                                 color: '#880e4f', // deep pink/purple
-                                marginBottom: 20,
+                                marginBottom: 16,
                                 textAlign: 'center',
-                                maxWidth: '800px',
+                                maxWidth: '780px',
+                                lineHeight: 1.2,
                             }}
                         >
                             {title}
                         </div>
                         <div
                             style={{
-                                fontSize: 30,
+                                fontSize: 28,
                                 color: '#666',
                                 display: 'flex',
                                 alignItems: 'center',
+                                marginBottom: 24,
                             }}
                         >
-                            <span style={{ marginRight: 10 }}>By</span>
+                            <span style={{ marginRight: 10 }}>by</span>
                             <span style={{ fontWeight: 'bold', color: '#ec4899' }}>{author}</span>
+                        </div>
+
+                        <div
+                            style={{
+                                width: 760,
+                                height: 220,
+                                borderRadius: 32,
+                                background: '#e0f7fa',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'flex-end',
+                                padding: '20px 28px',
+                                gap: 10,
+                                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.6)',
+                            }}
+                        >
+                            {messages.length === 0 ? (
+                                <div
+                                    style={{
+                                        alignSelf: 'flex-start',
+                                        maxWidth: '70%',
+                                        backgroundColor: '#ffffff',
+                                        borderRadius: 20,
+                                        padding: '10px 16px',
+                                        fontSize: 20,
+                                        color: '#374151',
+                                        boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
+                                    }}
+                                >
+                                    タップで進むチャット小説の一部がここに表示されます。
+                                </div>
+                            ) : (
+                                messages.map((m, idx) => (
+                                    <div
+                                        // eslint-disable-next-line react/no-array-index-key
+                                        key={idx}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: m.isMe ? 'flex-end' : 'flex-start',
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                maxWidth: '70%',
+                                                backgroundColor: m.isMe ? '#22c55e' : '#ffffff',
+                                                color: m.isMe ? '#ffffff' : '#374151',
+                                                borderRadius: m.isMe ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
+                                                padding: '10px 16px',
+                                                fontSize: 20,
+                                                lineHeight: 1.5,
+                                                boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
+                                                whiteSpace: 'pre-wrap',
+                                            }}
+                                        >
+                                            {m.text.length > 60 ? `${m.text.slice(0, 57)}...` : m.text}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                     <div

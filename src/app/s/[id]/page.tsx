@@ -24,6 +24,7 @@ export async function generateMetadata(
     }
 
     const ogUrl = new URL(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/og`)
+    ogUrl.searchParams.set('id', id)
     ogUrl.searchParams.set('title', story.title)
     ogUrl.searchParams.set('author', story.author || 'Anonymous')
 
