@@ -34,7 +34,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const { data, error, count } = await supabase
       .from('stories')
       .select('id, title, author, created_at, tags, views', { count: 'exact' })
-      .ilike('title', `%${q}%`)
+      .or(`title.ilike.%${q}%,author.ilike.%${q}%`)
       .order('created_at', { ascending: false })
       .range(from, to)
 
@@ -54,8 +54,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <Search size={20} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">タイトル検索</h1>
-            <p className="text-xs text-gray-500">キーワードを含むタイトルのストーリーを探せます</p>
+            <h1 className="text-2xl font-bold text-gray-800">タイトル・作者名で検索</h1>
+            <p className="text-xs text-gray-500">キーワードを含むタイトルや作者名のストーリーを探せます</p>
           </div>
         </div>
 
@@ -64,7 +64,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             type="text"
             name="q"
             defaultValue={q}
-            placeholder="タイトルの一部を入力..."
+            placeholder="タイトルや作者名の一部を入力..."
             className="flex-1 px-3 py-2 rounded-xl border border-pop-pink/40 bg-white text-base focus:outline-none focus:ring-2 focus:ring-pop-pink/60"
           />
           <button
@@ -80,7 +80,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         )}
 
         {q && stories.length === 0 && (
-          <p className="mt-4 text-sm text-gray-500">「{q}」を含むタイトルのストーリーは見つかりませんでした。</p>
+          <p className="mt-4 text-sm text-gray-500">「{q}」を含むタイトルまたは作者名のストーリーは見つかりませんでした。</p>
         )}
 
         {q && stories.length > 0 && (

@@ -65,7 +65,7 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
           <input
             type="text"
             name="q"
-            placeholder="タイトルで検索する..."
+            placeholder="タイトルや作者名で検索する..."
             className="flex-1 px-3 py-2 rounded-xl border border-pop-pink/40 bg-white text-base focus:outline-none focus:ring-2 focus:ring-pop-pink/60"
           />
           <button
