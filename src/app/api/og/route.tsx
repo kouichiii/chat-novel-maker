@@ -9,8 +9,6 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
         const id = searchParams.get('id')
-        let title = searchParams.get('title') || 'Chat Novel Maker'
-        let author = searchParams.get('author') || 'Anonymous'
 
         let messages: OgMessage[] = []
 
@@ -18,7 +16,7 @@ export async function GET(request: Request) {
             try {
                 const { data, error } = await supabase
                     .from('stories')
-                    .select('title, author, content')
+                    .select('content')
                     .eq('id', id)
                     .single()
 
@@ -29,10 +27,7 @@ export async function GET(request: Request) {
                     const msgs = content.messages || []
                     const meId = characters[0]?.id
 
-                    title = data.title || title
-                    author = data.author || author
-
-                    messages = (msgs as { id: string; text: string; characterId: string }[]) 
+                    messages = (msgs as { id: string; text: string; characterId: string }[])
                         .slice(0, 3)
                         .map((m) => ({
                             text: m.text,
@@ -74,34 +69,8 @@ export async function GET(request: Request) {
                     >
                         <div
                             style={{
-                                fontSize: 54,
-                                fontWeight: 'bold',
-                                color: '#880e4f', // deep pink/purple
-                                marginBottom: 16,
-                                textAlign: 'center',
-                                maxWidth: '780px',
-                                lineHeight: 1.2,
-                            }}
-                        >
-                            {title}
-                        </div>
-                        <div
-                            style={{
-                                fontSize: 28,
-                                color: '#666',
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginBottom: 24,
-                            }}
-                        >
-                            <span style={{ marginRight: 10 }}>by</span>
-                            <span style={{ fontWeight: 'bold', color: '#ec4899' }}>{author}</span>
-                        </div>
-
-                        <div
-                            style={{
                                 width: 760,
-                                height: 220,
+                                height: 260,
                                 borderRadius: 32,
                                 background: '#e0f7fa',
                                 display: 'flex',
