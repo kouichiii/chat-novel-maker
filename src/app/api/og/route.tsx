@@ -50,81 +50,71 @@ export async function GET(request: Request) {
                         alignItems: 'center',
                         justifyContent: 'center',
                         backgroundColor: '#e0f7fa', // pop-cyan-light
-                        backgroundImage: 'radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.8) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.8) 2%, transparent 0%)',
+                        backgroundImage:
+                            'radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.8) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.8) 2%, transparent 0%)',
                         backgroundSize: '100px 100px',
+                        position: 'relative',
                     }}
                 >
                     <div
                         style={{
+                            width: 760,
+                            height: 260,
+                            borderRadius: 32,
+                            background: '#e0f7fa',
                             display: 'flex',
                             flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: '40px',
-                            border: '8px solid #FFC1CC', // pop-pink-light
-                            padding: '40px 80px',
-                            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                            justifyContent: 'flex-end',
+                            padding: '20px 28px',
+                            gap: 10,
+                            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.6)',
                         }}
                     >
-                        <div
-                            style={{
-                                width: 760,
-                                height: 260,
-                                borderRadius: 32,
-                                background: '#e0f7fa',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'flex-end',
-                                padding: '20px 28px',
-                                gap: 10,
-                                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.6)',
-                            }}
-                        >
-                            {messages.length === 0 ? (
+                        {messages.length === 0 ? (
+                            <div
+                                style={{
+                                    alignSelf: 'flex-start',
+                                    maxWidth: '70%',
+                                    backgroundColor: '#ffffff',
+                                    borderRadius: 20,
+                                    padding: '10px 16px',
+                                    fontSize: 20,
+                                    color: '#374151',
+                                    boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
+                                }}
+                            >
+                                タップで進むチャット小説の一部がここに表示されます。
+                            </div>
+                        ) : (
+                            messages.map((m, idx) => (
                                 <div
+                                    // eslint-disable-next-line react/no-array-index-key
+                                    key={idx}
                                     style={{
-                                        alignSelf: 'flex-start',
-                                        maxWidth: '70%',
-                                        backgroundColor: '#ffffff',
-                                        borderRadius: 20,
-                                        padding: '10px 16px',
-                                        fontSize: 20,
-                                        color: '#374151',
-                                        boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
+                                        display: 'flex',
+                                        justifyContent: m.isMe ? 'flex-end' : 'flex-start',
                                     }}
                                 >
-                                    タップで進むチャット小説の一部がここに表示されます。
-                                </div>
-                            ) : (
-                                messages.map((m, idx) => (
                                     <div
-                                        // eslint-disable-next-line react/no-array-index-key
-                                        key={idx}
                                         style={{
-                                            display: 'flex',
-                                            justifyContent: m.isMe ? 'flex-end' : 'flex-start',
+                                            maxWidth: '70%',
+                                            backgroundColor: m.isMe ? '#22c55e' : '#ffffff',
+                                            color: m.isMe ? '#ffffff' : '#374151',
+                                            borderRadius: m.isMe
+                                                ? '20px 4px 20px 20px'
+                                                : '4px 20px 20px 20px',
+                                            padding: '10px 16px',
+                                            fontSize: 20,
+                                            lineHeight: 1.5,
+                                            boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
+                                            whiteSpace: 'pre-wrap',
                                         }}
                                     >
-                                        <div
-                                            style={{
-                                                maxWidth: '70%',
-                                                backgroundColor: m.isMe ? '#22c55e' : '#ffffff',
-                                                color: m.isMe ? '#ffffff' : '#374151',
-                                                borderRadius: m.isMe ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
-                                                padding: '10px 16px',
-                                                fontSize: 20,
-                                                lineHeight: 1.5,
-                                                boxShadow: '0 4px 8px rgba(15, 23, 42, 0.12)',
-                                                whiteSpace: 'pre-wrap',
-                                            }}
-                                        >
-                                            {m.text.length > 60 ? `${m.text.slice(0, 57)}...` : m.text}
-                                        </div>
+                                        {m.text.length > 60 ? `${m.text.slice(0, 57)}...` : m.text}
                                     </div>
-                                ))
-                            )}
-                        </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                     <div
                         style={{
