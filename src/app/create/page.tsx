@@ -1,16 +1,16 @@
+
 'use client'
 
 import React, { useEffect } from 'react'
 import { useStore } from '@/lib/store'
-import { Plus, Save, Share, Settings, User, Send, Play } from 'lucide-react'
+import { Plus, Settings, User, Send, Play } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { LIMITS } from '@/lib/constants'
 import { useToast } from '@/lib/useToast'
 
 export default function CreatePage() {
-    const { story, addMessage, updateMessage, removeMessage } = useStore()
+    const { story, addMessage, updateMessage, removeMessage, tagsInput, setTagsInput } = useStore()
     const router = useRouter()
     const { addToast } = useToast()
 
@@ -18,8 +18,6 @@ export default function CreatePage() {
     const [inputText, setInputText] = React.useState('')
     const [activeCharId, setActiveCharId] = React.useState(story.characters[0]?.id || '')
     const [mounted, setMounted] = React.useState(false) // Fix missing mounted state
-    const [isSaving, setIsSaving] = React.useState(false)
-    const [tagsInput, setTagsInput] = React.useState('')
 
     useEffect(() => setMounted(true), []) // Re-add effect
 
@@ -47,48 +45,6 @@ export default function CreatePage() {
             handleSend()
         }
     }
-
-    const handleSave = async (redirect = false) => {
-        if (story.messages.length === 0) {
-            addToast('メッセージが1つもありません。\nプレビューするには、まずは会話を入力してください！', 'error')
-            return
-        }
-        setIsSaving(true)
-        try {
-            const tags = tagsInput
-                .split(/[#,、，\s]+/)
-                .map(t => t.trim())
-                .filter(Boolean)
-                .slice(0, 10)
-
-            const { error } = await supabase.from('stories').upsert({
-                id: story.id,
-                title: story.title,
-                author: story.author,
-                 tags,
-                content: {
-                    characters: story.characters,
-                    messages: story.messages,
-                    theme: story.theme,
-                    tags
-                }
-            })
-
-            if (error) throw error
-
-            if (redirect) {
-                router.push(`/s/${story.id}`)
-            } else {
-                addToast('保存しました！', 'success')
-            }
-        } catch (e) {
-            console.error(e)
-            addToast('保存に失敗しました', 'error')
-        } finally {
-            setIsSaving(false)
-        }
-    }
-
     const [showMobileSettings, setShowMobileSettings] = React.useState(false)
 
     if (!mounted) return null
@@ -205,9 +161,14 @@ export default function CreatePage() {
                         {/* Mobile Action Buttons */}
                         <div className="flex items-center gap-1 md:hidden shrink-0 ml-auto">
                             <button
-                                onClick={() => handleSave(true)}
-                                disabled={isSaving}
-                                className="px-3 py-1.5 bg-pop-pink text-white rounded-full font-bold shadow-sm hover:bg-pop-pink-light transition-colors disabled:opacity-50 text-xs flex items-center gap-1"
+                                onClick={() => {
+                                    if (story.messages.length === 0) {
+                                        addToast('メッセージが1つもありません。\nまずは会話を入力してください！', 'error')
+                                        return
+                                    }
+                                    router.push('/preview')
+                                }}
+                                className="px-3 py-1.5 bg-pop-pink text-white rounded-full font-bold shadow-sm hover:bg-pop-pink-light transition-colors text-xs flex items-center gap-1"
                             >
                                 <Play size={14} fill="currentColor" /> プレビュー
                             </button>
@@ -311,11 +272,16 @@ export default function CreatePage() {
                 {/* Global Action Bar */}
                 <div className="hidden md:flex mt-6">
                     <button
-                        onClick={() => handleSave(true)}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-8 py-4 bg-pop-pink text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 text-lg animate-wiggle"
+                        onClick={() => {
+                            if (story.messages.length === 0) {
+                                addToast('メッセージが1つもありません。\nまずは会話を入力してください！', 'error')
+                                return
+                            }
+                            router.push('/preview')
+                        }}
+                        className="flex items-center gap-2 px-8 py-4 bg-pop-pink text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-lg animate-wiggle"
                     >
-                        <Play size={24} fill="currentColor" /> プレビューして共有
+                        <Play size={24} fill="currentColor" /> プレビューを見る
                     </button>
                 </div>
             </div>
@@ -426,10 +392,17 @@ export default function CreatePage() {
 
                                 <div className="pt-6">
                                     <button
-                                        onClick={() => { setShowMobileSettings(false); handleSave(true); }}
+                                        onClick={() => {
+                                            if (story.messages.length === 0) {
+                                                addToast('メッセージが1つもありません。\nまずは会話を入力してください！', 'error')
+                                                return
+                                            }
+                                            setShowMobileSettings(false)
+                                            router.push('/preview')
+                                        }}
                                         className="w-full p-4 bg-pop-pink text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-opacity"
                                     >
-                                        <Play size={20} fill="currentColor" /> プレビューして共有
+                                        <Play size={20} fill="currentColor" /> プレビューを見る
                                     </button>
                                 </div>
                             </div>

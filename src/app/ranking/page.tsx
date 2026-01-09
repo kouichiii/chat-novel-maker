@@ -13,6 +13,7 @@ async function getRankedStories(page: number) {
   const { data, error, count } = await supabase
     .from('stories')
     .select('id, title, author, created_at, tags, views', { count: 'exact' })
+    .eq('is_listed', true)
     .order('views', { ascending: false })
     .order('created_at', { ascending: false })
     .range(from, to)

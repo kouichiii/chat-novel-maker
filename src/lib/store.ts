@@ -4,11 +4,13 @@ import { Story, Character, Message } from './types'
 
 interface StoreState {
     story: Story
+    tagsInput: string
 
     // Metadata actions
     setTitle: (title: string) => void
     setAuthor: (author: string) => void
     setTheme: (theme: Story['theme']) => void
+    setTagsInput: (value: string) => void
 
     // Character actions
     addCharacter: (name: string, color: string) => void
@@ -43,6 +45,7 @@ const INITIAL_STORY: Story = {
 
 export const useStore = create<StoreState>((set) => ({
     story: { ...INITIAL_STORY, id: uuidv4() },
+    tagsInput: '',
 
     setTitle: (title) => set((state) => ({
         story: { ...state.story, title, updatedAt: Date.now() }
@@ -54,6 +57,10 @@ export const useStore = create<StoreState>((set) => ({
 
     setTheme: (theme) => set((state) => ({
         story: { ...state.story, theme, updatedAt: Date.now() }
+    })),
+
+    setTagsInput: (value) => set(() => ({
+        tagsInput: value
     })),
 
     addCharacter: (name, color) => set((state) => ({
@@ -108,5 +115,8 @@ export const useStore = create<StoreState>((set) => ({
 
     loadStory: (story) => set({ story }),
 
-    reset: () => set({ story: { ...INITIAL_STORY, id: uuidv4(), createdAt: Date.now(), updatedAt: Date.now() } })
+    reset: () => set({
+        story: { ...INITIAL_STORY, id: uuidv4(), createdAt: Date.now(), updatedAt: Date.now() },
+        tagsInput: ''
+    })
 }))

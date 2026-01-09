@@ -34,6 +34,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const { data, error, count } = await supabase
       .from('stories')
       .select('id, title, author, created_at, tags, views', { count: 'exact' })
+      .eq('is_listed', true)
       .or(`title.ilike.%${q}%,author.ilike.%${q}%`)
       .order('created_at', { ascending: false })
       .range(from, to)
