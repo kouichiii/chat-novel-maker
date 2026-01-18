@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: '利用規約 | チャットノベルメーカー',
-  description: 'チャットノベルメーカーの利用規約です。',
+  title: '利用規約 | ノベトーク',
+  description: 'ノベトークの利用規約です。',
 }
 
 export default function TermsPage() {
@@ -14,7 +14,7 @@ export default function TermsPage() {
 
         <section className="space-y-4 md:space-y-5">
           <p>
-            この利用規約（以下「本規約」といいます。）は、本サービスの提供者（以下「運営者」といいます。）が提供する「チャットノベルメーカー」（以下「本サービス」といいます。）の利用条件を定めるものです。本サービスを利用される前に、本規約をよくお読みください。
+            この利用規約（以下「本規約」といいます。）は、本サービスの提供者（以下「運営者」といいます。）が提供する「ノベトーク」（以下「本サービス」といいます。）の利用条件を定めるものです。本サービスを利用される前に、本規約をよくお読みください。
           </p>
 
           <div>

@@ -29,7 +29,7 @@ export async function generateMetadata(
     ogUrl.searchParams.set('author', story.author || 'Anonymous')
 
     return {
-        title: `${story.title} | Chat Novel Maker`,
+        title: `${story.title} | ノベトーク`,
         description: `${story.author}さんが作ったチャット小説を読もう！`,
         openGraph: {
             title: story.title,

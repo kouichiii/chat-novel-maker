@@ -11,7 +11,7 @@ export default function Home() {
       </div>
 
       <h1 className="text-3xl md:text-6xl font-bold bg-gradient-to-r from-pop-pink to-pop-cyan bg-clip-text text-transparent mb-4 md:mb-6 leading-tight">
-        Chat Novel Maker
+        ノベトーク
       </h1>
 
       <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-12 max-w-lg leading-relaxed">
@@ -158,7 +158,7 @@ export default function Home() {
       <LandingFaq />
 
       <footer className="mt-16 md:mt-20 w-full max-w-5xl text-xs md:text-sm text-gray-400 flex flex-col md:flex-row items-center justify-between gap-2 border-t border-orange-50 pt-4 md:pt-6">
-        <span>© {new Date().getFullYear()} Chat Novel Maker</span>
+        <span>© {new Date().getFullYear()} ノベトーク</span>
         <div className="flex items-center gap-4">
           <Link href="/terms" className="hover:text-pop-pink underline-offset-2 hover:underline">
             利用規約

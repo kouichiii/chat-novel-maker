@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'プライバシーポリシー | チャットノベルメーカー',
-  description: 'チャットノベルメーカーのプライバシーポリシーです。',
+  title: 'プライバシーポリシー | ノベトーク',
+  description: 'ノベトークのプライバシーポリシーです。',
 }
 
 export default function PrivacyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-4 md:space-y-5">
           <p>
-            本プライバシーポリシーは、本サービスの提供者（以下「運営者」といいます。）が提供する「チャットノベルメーカー」（以下「本サービス」といいます。）における、利用者の情報の取り扱い方針を定めるものです。
+            本プライバシーポリシーは、本サービスの提供者（以下「運営者」といいます。）が提供する「ノベトーク」（以下「本サービス」といいます。）における、利用者の情報の取り扱い方針を定めるものです。
           </p>
 
           <div>

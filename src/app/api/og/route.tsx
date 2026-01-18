@@ -125,7 +125,7 @@ export async function GET(request: Request) {
                             fontWeight: 'bold',
                         }}
                     >
-                        Chat Novel Maker でつくろう
+                        ノベトーク でつくろう
                     </div>
                 </div>
             ),

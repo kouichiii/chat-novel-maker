@@ -15,27 +15,41 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Chat Novel Maker',
-    default: 'Chat Novel Maker - チャット小説を作ってシェアしよう',
+    template: '%s | ノベトーク',
+    default: 'ノベトーク | LINEみたいな会話小説を無料で作成',
   },
-  description: 'チャット形式の小説を誰でも簡単に作成・公開できるサービスです。タップで進む物語を作って、友達にシェアしよう！',
+  description: 'LINEのようなチャット形式の小説を無料で作成・共有できるサービス。タップで進む物語を簡単に作って、友達にシェアしよう！登録不要ですぐに始められます。',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
-    title: 'Chat Novel Maker',
-    description: 'チャット形式の小説を誰でも簡単に作成・公開できるサービスです。',
+    title: 'ノベトーク | 会話小説を無料で作成・共有',
+    description: 'LINEのようなチャット形式の小説を無料で作成・共有できるサービス。タップで進む物語を簡単に作って、友達にシェアしよう！',
     url: '/',
-    siteName: 'Chat Novel Maker',
+    siteName: 'ノベトーク',
     locale: 'ja_JP',
     type: 'website',
-    images: ['/api/og?title=Chat%20Novel%20Maker&author=Official'],
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'ノベトーク',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Chat Novel Maker',
-    description: 'チャット形式の小説を誰でも簡単に作成・公開できるサービスです。',
-    images: ['/api/og?title=Chat%20Novel%20Maker&author=Official'],
+    title: 'ノベトーク | 会話小説を無料で作成・共有',
+    description: 'LINEのようなチャット形式の小説を無料で作成・共有できるサービス。タップで進む物語を簡単に作って、友達にシェアしよう！',
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'ノベトーク',
+      },
+    ],
   },
-  keywords: ['チャット小説', '創作', '小説メーカー', 'SS', '二次創作'],
+  keywords: ['ノベトーク', 'チャット小説', 'LINE風小説', '会話小説', 'SS', '創作', '二次創作', '無料'],
   verification: {
     google: "Q1NCcjpd6tazY4ONqhcn1tKsKTNdtCOK7i9QYyPEALM",
   },
